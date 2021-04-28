@@ -3,6 +3,9 @@ networks:
     private:
         name: private
         driver: overlay
+    public:
+        name: public
+        external: true
 volumes: 
     prometheus_config:
         {}
@@ -22,6 +25,7 @@ services:
         user: root
         networks: 
             - private
+            - public
         ports: 
             - 9090:9090
         hostname: "prometheus"
@@ -48,6 +52,7 @@ services:
         image: grafana/grafana
         networks: 
             - private
+            - public
         ports:
             - 3000:3000
         volumes:
@@ -73,6 +78,7 @@ services:
                # Not using google/cadvisor as no arm image is available
         networks: 
             - private
+            - public
         ports: 
             - 8080:8080
         volumes: 
