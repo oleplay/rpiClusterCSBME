@@ -17,8 +17,8 @@ volumes:
 configs:
     prometheus_config:
         file: ./Configs/prometheus/prometheus.yml
-    prometheus_alerts:
-        file: ./Configs/prometheus/prometheus_rules.rules
+    # prometheus_alerts:
+    #     file: ./Configs/prometheus/prometheus_rules.rules
     caddyfile:
         file: ./Configs/caddy/caddyfile
 services:
@@ -34,8 +34,8 @@ services:
         configs:
             - source: prometheus_config
               target: /etc/prometheus/prometheus.yml
-            - source: prometheus_alerts
-              target: /etc/prometheus/alerts.rules
+            # - source: prometheus_alerts
+            #   target: /etc/prometheus/alerts.rules
         volumes: 
             # - prometheus_config:/etc/prometheus
             - prometheus_data:/prometheus
