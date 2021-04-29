@@ -131,7 +131,7 @@ services:
             - "9094:9094"
         configs: 
             - source: caddyfile
-              target: /etc/caddy/caddyfile
+              target: /etc/caddy/Caddyfile
         deploy:
             mode: replicated
             replicas: 1
