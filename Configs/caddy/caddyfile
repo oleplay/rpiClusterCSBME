@@ -7,7 +7,7 @@
 }
 
 :4000 {
-	respond "Hello Project"
+	respond "Caddy is Working"
 }
 
 :2021 {

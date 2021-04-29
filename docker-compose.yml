@@ -4,12 +4,10 @@ networks:
         name: private
         driver: overlay
         attachable: true
-    # public:
-    #     name: public
-    #     external: true
+
 volumes: 
-    # prometheus_config:
-    #     {}
+    prometheus_config:
+        {}
     prometheus_data:
         {}
     grafana_data:
@@ -21,15 +19,14 @@ configs:
     #     file: ./Configs/prometheus/prometheus_rules.rules
     caddyfile:
         file: ./Configs/caddy/caddyfile
+    docker-exporter_caddyfile:
+        file: ./Configs/caddy/docker_exporter_caddyfile
 services:
     prometheus:
         image: prom/prometheus
         user: root
         networks: 
             - private
-            # - public
-        # ports: 
-        #     - 9090:9090
         hostname: "prometheus"
         configs:
             - source: prometheus_config
@@ -37,7 +34,7 @@ services:
             # - source: prometheus_alerts
             #   target: /etc/prometheus/alerts.rules
         volumes: 
-            # - prometheus_config:/etc/prometheus
+            - prometheus_config:/etc/prometheus
             - prometheus_data:/prometheus
         command:
             - "--config.file=/etc/prometheus/prometheus.yml"
@@ -56,9 +53,6 @@ services:
         image: grafana/grafana
         networks: 
             - private
-            # - public
-        # ports:
-        #     - 3000:3000
         volumes:
             - grafana_data:/var/lib/grafana
         environment: 
@@ -83,9 +77,6 @@ services:
                # Not using google/cadvisor as no arm image is available
         networks: 
             - private
-            # - public
-        # ports: 
-        #     - 8080:8080
         volumes: 
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - /:/rootfs:ro
@@ -100,8 +91,6 @@ services:
         image: prom/node-exporter
         networks:
             - private
-        # ports: 
-        #     - 9100:9100
         volumes: 
             - /proc:/host/proc:ro
             - /sys:/host/sys:ro
@@ -141,3 +130,14 @@ services:
                 constraints:
                     - node.role == manager
     
+    docker-exporter:
+        image: caddy
+        networks: 
+            - private
+        environment: 
+            - DOCKER_GWBRIDGE=172.18.0.1
+        configs: 
+            - source: docker-exporter_caddyfile
+              target: /etc/caddy/Caddyfile
+        deploy:
+            mode: global

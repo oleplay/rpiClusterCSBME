@@ -38,3 +38,11 @@ scrape_configs:
         - "tasks.caddy"
         type: "A"
         port: 2021
+        
+    - job_name: "docker-exporter"
+      scrape_interval: 5s
+      dns_sd_configs:
+      - names:
+        - "tasks.docker-exporter"
+        type: "A"
+        port: 9323
