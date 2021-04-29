@@ -1,7 +1,9 @@
 global:
+    # Set scraping and rule evaluation interval
     scrape_interval: 15s
     evaluation_interval: 15s
 
+    # Label for alerts
     external_labels:
         monitor: "Projektwoche"
 
@@ -10,19 +12,23 @@ rule_files:
     - "alert.rules"
 
 scrape_configs:
+    # Get metrics for local prometheus installation
     - job_name: "prometheus"
       scrape_interval: 5s
       static_configs:
         - targets: ['localhost:9090']
     
+    # Get metrics for all containers
     - job_name: "cadvisor"
       scrape_interval: 5s
       dns_sd_configs:
+      # Populate targets via dns requests in local network with all containers in service cadvisor
       - names:
         - "tasks.cadvisor"
         type: "A"
         port: 8080
     
+    # Get metrics for node hosts
     - job_name: "node-exporter"
       scrape_interval: 5s
       dns_sd_configs:
@@ -31,6 +37,7 @@ scrape_configs:
         type: "A"
         port: 9100
 
+    # Get metrics for caddy reverse proxy
     - job_name: "caddy"
       scrape_interval: 10s
       dns_sd_configs:
@@ -38,7 +45,8 @@ scrape_configs:
         - "tasks.caddy"
         type: "A"
         port: 2021
-        
+
+    # Get metrics from docker daemons on all nodes
     - job_name: "docker-exporter"
       scrape_interval: 5s
       dns_sd_configs:

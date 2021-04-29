@@ -1,10 +1,12 @@
 version: "3.5"
 networks: 
+    # Create new overlay network
     private:
         name: private
         driver: overlay
         attachable: true
 
+# Create persistant docker volumes
 volumes: 
     prometheus_config:
         {}
@@ -12,9 +14,14 @@ volumes:
         {}
     grafana_data:
         {}
+
+# Create config mappings
 configs:
     prometheus_config:
         file: ./Configs/prometheus/prometheus.yml
+
+    # Not using alerts this time
+
     # prometheus_alerts:
     #     file: ./Configs/prometheus/prometheus_rules.rules
     caddyfile:
@@ -22,27 +29,38 @@ configs:
     docker-exporter_caddyfile:
         file: ./Configs/caddy/docker_exporter_caddyfile
 services:
+    # Create prometheus container with user root 
     prometheus:
         image: prom/prometheus
         user: root
+        # attach network
         networks: 
             - private
+        # set container hostname
         hostname: "prometheus"
+        # map config to config in container
         configs:
             - source: prometheus_config
               target: /etc/prometheus/prometheus.yml
             # - source: prometheus_alerts
             #   target: /etc/prometheus/alerts.rules
+        # attach persistent volumes
         volumes: 
             - prometheus_config:/etc/prometheus
             - prometheus_data:/prometheus
+        # set commandline arguments
         command:
+            # set config location
             - "--config.file=/etc/prometheus/prometheus.yml"
+            # set database path
             - "--storage.tsdb.path=/prometheus"
             - "--web.console.libraries=/etc/prometheus/console_libraries"
             - "--web.console.templates=/etc/prometheus/consoles"
+        # deployment settings
         deploy:
+            # use replicated deployment mode (with set number of replicas)
             mode: replicated
+            # use only one replica e.g only on one host
             replicas: 1
             placement:
                 constraints:
@@ -55,15 +73,21 @@ services:
             - private
         volumes:
             - grafana_data:/var/lib/grafana
+        # Set environmental variables
         environment: 
+            # Set admin password change with first login
             - GF_SECURITY_ADMIN_PASSWORD=admin
             - GF_USERS_ALLOW_SIGN_UP=false
+
+            # Not using Email for now
             # - GF_SERVER_DOMAIN=localhost
             # - GF_SMTP_ENABLED=true
             # - GF_SMTP_HOST=xxxxx:587
             # - GF_SMTP_USER=xxxxxxx
             # - GF_SMTP_PASSWORD=xxxxxxx
             # - GF_SMTP_FROM_ADDRESS=grafana@xxxxxxxxxx.xx
+            
+            # Configure prometheus datasource
             - PROMETHEUS_ENDPOINT=http://prometheus:9090
         deploy:
             mode: replicated
@@ -74,9 +98,10 @@ services:
     
     cadvisor:
         image: zcube/cadvisor
-               # Not using google/cadvisor as no arm image is available
+               # Not using google/cadvisor cause no arm image is available
         networks: 
             - private
+        # Mount system files to enable docker monitoring
         volumes: 
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - /:/rootfs:ro
@@ -88,6 +113,8 @@ services:
             mode: global
     
     node-exporter:
+        # using my own dockerimage since stefanprodan/swarmprom-node-exporter is outdated and not avail. for arm
+        # sourcecode: https://github.com/oleplay/swarmprom-node-exporter
         image: oleplayt/swarmprom-node-exporter
         networks:
             - private
@@ -95,6 +122,7 @@ services:
             - /proc:/host/proc:ro
             - /sys:/host/sys:ro
             - /:/rootfs:ro
+            # mount hostname so container can get node hostname
             - /etc/hostname:/etc/nodename
         environment: 
             - HOST_HOSTNAME=/etc/nodename
@@ -106,14 +134,17 @@ services:
             - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
         deploy:
             mode: global
-    
+
+    # Using caddy as reverse proxy to enable authentication and simplify further modifications
     caddy:
         image: caddy
         networks: 
             - private
+        # Expose proxied ports to complete overlay network (enabling access via all node IPs)
         ports: 
             - "3000:3000"
             # Test Page
+            # Exposed only on caddy host e.g. Swarm manager
             - target: 4000
               published: 4000
               mode: host
@@ -130,11 +161,13 @@ services:
                 constraints:
                     - node.role == manager
     
+    # Using caddy to proxy prometheus access to dockerdaemon of node
     docker-exporter:
         image: caddy
         networks: 
             - private
         environment: 
+            # Export GWBridge IP (local docker daemon IP)
             - DOCKER_GWBRIDGE=172.18.0.1
         configs: 
             - source: docker-exporter_caddyfile

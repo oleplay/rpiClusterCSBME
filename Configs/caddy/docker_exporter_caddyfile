@@ -1,3 +1,4 @@
 :9323 {
+    # $DOCKER_GWBRIDGE is a placeholder for environmental variable which gets populated on deployment
     reverse_proxy {$DOCKER_GWBRIDGE}:9323
 }
