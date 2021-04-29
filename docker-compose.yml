@@ -88,7 +88,7 @@ services:
             mode: global
     
     node-exporter:
-        image: prom/node-exporter
+        image: dakotairene/swarmprom-node-exporter
         networks:
             - private
         volumes: 
