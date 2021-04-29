@@ -70,7 +70,7 @@ services:
             # - GF_SMTP_USER=xxxxxxx
             # - GF_SMTP_PASSWORD=xxxxxxx
             # - GF_SMTP_FROM_ADDRESS=grafana@xxxxxxxxxx.xx
-            # - PROMETHEUS_ENDPOINT=http://prometheus:9090
+            - PROMETHEUS_ENDPOINT=http://prometheus:9090
         deploy:
             mode: replicated
             replicas: 1
