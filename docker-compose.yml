@@ -95,9 +95,9 @@ services:
             - /proc:/host/proc:ro
             - /sys:/host/sys:ro
             - /:/rootfs:ro
-            - /etc/hostname:/etc/node_hostname
+            - /etc/hostname:/etc/nodename
         environment: 
-            - HOST_HOSTNAME=/etc/node_hostname
+            - HOST_HOSTNAME=/etc/nodename
         command: 
             - "--path.sysfs=/host/sys"
             - "--path.procfs=/host/proc"
