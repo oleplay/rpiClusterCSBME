@@ -125,7 +125,9 @@ services:
         ports: 
             - "3000:3000"
             # Test Page
-            - "4000:4000"
+            - target: 4000
+              published: 4000
+              mode: host
             - "9090:9090"
             - "9093:9093"
             - "9094:9094"
