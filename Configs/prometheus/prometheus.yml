@@ -37,4 +37,4 @@ scrape_configs:
       - names:
         - "tasks.caddy"
         type: "A"
-        port: 2019
+        port: 2021

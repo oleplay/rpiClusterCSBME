@@ -9,3 +9,7 @@
 :4000 {
 	respond "Hello Project"
 }
+
+:2021 {
+    metrics
+}
