@@ -120,7 +120,8 @@ services:
     
     caddy:
         image: caddy
-        networks: private
+        networks: 
+            - private
         ports: 
             - "3000:3000"
             - "9090:9090"
