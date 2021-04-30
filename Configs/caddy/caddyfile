@@ -8,6 +8,9 @@
     reverse_proxy grafana:3000
 }
 
+:8080 {
+    reverse_proxy swarm-visualizer:8080
+}
 
 :4000 {
     # respond with static webpage

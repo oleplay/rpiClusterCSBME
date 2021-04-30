@@ -149,6 +149,7 @@ services:
               published: 4000
               mode: host
             - "9090:9090"
+            - "8080:8080"
             # - "9093:9093"
             # - "9094:9094"
         configs: 
@@ -174,6 +175,7 @@ services:
               target: /etc/caddy/Caddyfile
         deploy:
             mode: global
+
     # Visualizer to show containers on each node
     swarm-visualizer:
         image: alexellis2/visualizer-arm
@@ -181,8 +183,6 @@ services:
             - private
         volumes: 
             - /var/run/docker.sock:/var/run/docker.sock:ro
-        ports: 
-            - "8080:8080"
         deploy:
             mode: replicated
             replicas: 1
